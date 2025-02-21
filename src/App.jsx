@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Route, Switch, Redirect, withRouter } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 
 import Layout from './components/Layout/Layout';
 import Backdrop from './components/Backdrop/Backdrop';
@@ -140,56 +140,37 @@ class App extends Component {
 
   render() {
     let routes = (
-      <Switch>
+      <Routes>
         <Route
           path="/"
-          exact
-          render={props => (
-            <LoginPage
-              {...props}
-              onLogin={this.loginHandler}
-              loading={this.state.authLoading}
-            />
-          )}
+          element={<LoginPage onLogin={this.loginHandler} loading={this.state.authLoading} />}
         />
         <Route
           path="/signup"
-          exact
-          render={props => (
-            <SignupPage
-              {...props}
-              onSignup={this.signupHandler}
-              loading={this.state.authLoading}
-            />
-          )}
+          element={<SignupPage onSignup={this.signupHandler} loading={this.state.authLoading} />}
         />
-        <Redirect to="/" />
-      </Switch>
+        {/* Si non authentifié, redirection vers la page de login */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     );
+
     if (this.state.isAuth) {
       routes = (
-        <Switch>
+        <Routes>
           <Route
             path="/"
-            exact
-            render={props => (
-              <FeedPage userId={this.state.userId} token={this.state.token} />
-            )}
+            element={<FeedPage userId={this.state.userId} token={this.state.token} />}
           />
           <Route
             path="/:postId"
-            render={props => (
-              <SinglePostPage
-                {...props}
-                userId={this.state.userId}
-                token={this.state.token}
-              />
-            )}
+            element={<SinglePostPage userId={this.state.userId} token={this.state.token} />}
           />
-          <Redirect to="/" />
-        </Switch>
+          {/* Redirection vers la page Feed si l'utilisateur est déjà authentifié */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       );
     }
+
     return (
       <Fragment>
         {this.state.showBackdrop && (
@@ -222,4 +203,4 @@ class App extends Component {
   }
 }
 
-export default withRouter(App);
+export default App;
