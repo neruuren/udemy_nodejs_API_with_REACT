@@ -11,13 +11,14 @@ import FeedPage from './pages/Feed/Feed';
 import SinglePostPage from './pages/Feed/SinglePost/SinglePost';
 import LoginPage from './pages/Auth/Login';
 import SignupPage from './pages/Auth/Signup';
+import RedirectToHome from './util/RedirectToHome';
 import './App.css';
 
 class App extends Component {
   state = {
     showBackdrop: false,
     showMobileNav: false,
-    isAuth: true,
+    isAuth: false,
     token: null,
     userId: null,
     authLoading: false,
@@ -100,7 +101,17 @@ class App extends Component {
   signupHandler = (event, authData) => {
     event.preventDefault();
     this.setState({ authLoading: true });
-    fetch('URL')
+    fetch('http://localhost:8080/auth/signup', {
+      method: 'PUT',
+      headers: {
+        'content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: authData.signupForm.email.value,
+        password: authData.signupForm.password.value,
+        name: authData.signupForm.name.value,
+      })
+    })
       .then(res => {
         if (res.status === 422) {
           throw new Error(
@@ -115,8 +126,12 @@ class App extends Component {
       })
       .then(resData => {
         console.log(resData);
-        this.setState({ isAuth: false, authLoading: false });
-        this.props.history.replace('/');
+        this.setState({ isAuth: false, authLoading: false, redirect: true },
+          () => {
+            // Cette callback garantit que l'état est bien mis à jour avant la redirection
+            this.forceUpdate(); // Force la réactualisation du DOM si nécessaire
+          });
+          window.location.href = '/';
       })
       .catch(err => {
         console.log(err);
@@ -139,6 +154,10 @@ class App extends Component {
   };
 
   render() {
+    if (this.state.redirect) {
+      return <RedirectToHome />;
+    }
+  
     let routes = (
       <Routes>
         <Route
