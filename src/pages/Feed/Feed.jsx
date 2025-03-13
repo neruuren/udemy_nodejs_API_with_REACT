@@ -23,9 +23,12 @@ class Feed extends Component {
 
   componentDidMount() {
     const userId = localStorage.getItem('userId');
-    fetch('http://localhost:8080/auth/status/' + userId)
+    fetch('http://localhost:8080/auth/status', {
+      headers: {
+        Authorization: 'Bearer ' + this.props.token
+      }
+    })
       .then(res => {
-        console.log(res);
         if (res.status !== 200) {
           throw new Error('Failed to fetch user status.');
         }
@@ -80,8 +83,7 @@ class Feed extends Component {
 
   statusUpdateHandler = event => {
     event.preventDefault();
-    const userId = localStorage.getItem('userId');
-    fetch('http://localhost:8080/auth/status/' + userId, {
+    fetch('http://localhost:8080/auth/status', {
       method: 'PATCH',
       headers: {
         Authorization: 'Bearer ' + this.props.token,
