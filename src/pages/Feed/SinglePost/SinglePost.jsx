@@ -15,7 +15,11 @@ const SinglePost = () => {
   });
 
   useEffect(() => {
-    fetch(`http://localhost:8080/feed/post/${postId}`)
+    fetch(`http://localhost:8080/feed/post/${postId}`, {
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem('token'),
+      }
+    })  
       .then(res => {
         if (res.status !== 200) {
           throw new Error('Failed to fetch post');
